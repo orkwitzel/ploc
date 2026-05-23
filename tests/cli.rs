@@ -94,7 +94,33 @@ fn renders_language_breakdown_sorted_by_loc() {
         .success()
         .stdout(predicate::str::contains("Languages 2"))
         .stdout(predicate::str::contains("Rust"))
-        .stdout(predicate::str::contains("Python"));
+        .stdout(predicate::str::contains("Python"))
+        .stdout(predicate::str::contains("│ █"))
+        .stdout(predicate::str::contains("│ Rust"))
+        .stdout(predicate::str::contains("│ Python"))
+        .stdout(predicate::str::contains("Rust").and(predicate::str::contains("66.7%").not()));
+}
+
+#[test]
+fn colored_output_matches_bar_and_legend_colors() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.child("main.rs")
+        .write_str("fn main() {}\nfn helper() {}\n")
+        .unwrap();
+    temp.child("app.py").write_str("print('hi')\n").unwrap();
+
+    let output = Command::cargo_bin("ploc")
+        .unwrap()
+        .current_dir(temp.path())
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("\u{1b}[38;5;208m█"));
+    assert!(stdout.contains("\u{1b}[38;5;208mRust"));
+    assert!(stdout.contains("\u{1b}[38;5;39m█"));
+    assert!(stdout.contains("\u{1b}[38;5;39mPython"));
 }
 
 #[test]
