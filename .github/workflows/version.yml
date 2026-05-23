@@ -12,6 +12,10 @@ jobs:
   version:
     if: ${{ github.actor != 'github-actions[bot]' && !startsWith(github.event.head_commit.message, 'chore(release):') }}
     runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.version.outputs.should_release }}
+      version: ${{ steps.version.outputs.version }}
+      tag: v${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,3 +99,70 @@ jobs:
           git tag "v${{ steps.version.outputs.version }}"
           git push
           git push origin "v${{ steps.version.outputs.version }}"
+
+  build:
+    name: Build ${{ matrix.target }}
+    needs: version
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: ploc-linux-x86_64.tar.gz
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            archive: ploc-macos-x86_64.tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            archive: ploc-macos-aarch64.tar.gz
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --target "${{ matrix.target }}"
+
+      - name: Package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp "target/${{ matrix.target }}/release/ploc" dist/ploc
+          tar -C dist -czf "${{ matrix.archive }}" ploc
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive }}
+          path: ${{ matrix.archive }}
+
+  release:
+    name: Publish GitHub Release
+    needs:
+      - version
+      - build
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          files: dist/**/*.tar.gz
+          generate_release_notes: true
