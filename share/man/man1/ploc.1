@@ -1,0 +1,56 @@
+.TH PLOC 1 "May 2026" "ploc 0.2.0" "User Commands"
+.SH NAME
+ploc \- count lines of code and language usage in the current directory
+.SH SYNOPSIS
+.B ploc
+[\fB\-\-include\-noise\fR]
+[\fB\-\-no\-color\fR]
+[\fB\-\-help\fR]
+[\fB\-\-version\fR]
+.SH DESCRIPTION
+.B ploc
+prints a compact summary of source lines, counted files, and detected
+languages for exactly the current working directory.
+.PP
+Unlike project-root discovery tools,
+.B ploc
+does not walk upward to find a Git repository, package manifest, or workspace
+root. It scans the directory where it is invoked.
+.SH OPTIONS
+.TP
+.B \-\-include\-noise
+Include dependency, build, VCS, cache, and generated-output directories that
+are skipped by default.
+.TP
+.B \-\-no\-color
+Disable ANSI color in the output.
+.TP
+.B \-\-help
+Print command help.
+.TP
+.B \-\-version
+Print the installed version.
+.SH DEFAULT EXCLUSIONS
+By default,
+.B ploc
+skips common noisy directories such as
+.BR .git ,
+.BR node_modules ,
+.BR target ,
+.BR dist ,
+.BR build ,
+and cache directories.
+.SH EXAMPLES
+.TP
+Scan the current directory:
+.B ploc
+.TP
+Scan the current directory without ANSI color:
+.B ploc --no-color
+.TP
+Include build and dependency directories:
+.B ploc --include-noise
+.SH AUTHOR
+Or Kwitzel
+.SH LICENSE
+MIT License

@@ -14,7 +14,34 @@ ploc --no-color
 
 By default it skips common noisy directories such as `.git`, `node_modules`, `target`, `dist`, `build`, and cache directories. Use `--include-noise` to include them.
 
-## Build
+## Install
+
+Install the latest release locally with one command:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/orkwitzel/ploc/master/install.sh | sh
+```
+
+The installer downloads the latest release archive for your platform and installs:
+
+- `ploc` to `~/.local/bin/ploc`
+- the man page to `~/.local/share/man/man1/ploc.1`
+
+Make sure `~/.local/bin` is on your `PATH`.
+
+You can override install locations:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/orkwitzel/ploc/master/install.sh | INSTALL_DIR="$HOME/bin" MAN_DIR="$HOME/.local/share/man/man1" sh
+```
+
+After installing, read the manual with:
+
+```sh
+man ploc
+```
+
+## Build From Source
 
 ```sh
 cargo build --release
@@ -25,6 +52,8 @@ Install the binary somewhere on your `PATH`, for example:
 ```sh
 mkdir -p ~/.local/bin
 cp target/release/ploc ~/.local/bin/ploc
+mkdir -p ~/.local/share/man/man1
+cp share/man/man1/ploc.1 ~/.local/share/man/man1/ploc.1
 ```
 
 ## Contributing

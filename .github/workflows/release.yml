@@ -43,8 +43,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
+          mkdir -p dist/share/man/man1
           cp "target/${{ matrix.target }}/release/ploc" dist/ploc
-          tar -C dist -czf "${{ matrix.archive }}" ploc
+          cp share/man/man1/ploc.1 dist/share/man/man1/ploc.1
+          tar -C dist -czf "${{ matrix.archive }}" ploc share/man/man1/ploc.1
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
