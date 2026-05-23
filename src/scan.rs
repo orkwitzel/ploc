@@ -31,8 +31,8 @@ pub struct Summary {
 }
 
 pub fn scan_current_dir(include_noise: bool) -> Result<Summary, String> {
-    let root = std::env::current_dir()
-        .map_err(|err| format!("cannot read current directory: {err}"))?;
+    let root =
+        std::env::current_dir().map_err(|err| format!("cannot read current directory: {err}"))?;
     scan_path(&root, include_noise)
 }
 
