@@ -124,6 +124,42 @@ fn colored_output_matches_bar_and_legend_colors() {
 }
 
 #[test]
+fn language_counts_align_after_color_codes_are_removed() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.child("app.ts")
+        .write_str("const a = 1;\nconst b = 2;\n")
+        .unwrap();
+    temp.child("component.svelte")
+        .write_str("<script>let count = 0;</script>\n")
+        .unwrap();
+    temp.child("package.json")
+        .write_str("{\"name\":\"demo\"}\n")
+        .unwrap();
+
+    let output = Command::cargo_bin("ploc")
+        .unwrap()
+        .current_dir(temp.path())
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    let plain = strip_ansi(&stdout);
+    let language_lines = plain
+        .lines()
+        .filter(|line| {
+            line.contains("TypeScript") || line.contains("Svelte") || line.contains("JSON")
+        })
+        .collect::<Vec<_>>();
+    let columns = language_lines
+        .iter()
+        .map(|line| line.find(|ch: char| ch.is_ascii_digit()).unwrap())
+        .collect::<Vec<_>>();
+
+    assert_eq!(columns, vec![columns[0]; columns.len()]);
+}
+
+#[test]
 fn no_color_output_has_no_ansi_sequences() {
     let temp = assert_fs::TempDir::new().unwrap();
     temp.child("main.rs").write_str("fn main() {}\n").unwrap();
@@ -138,4 +174,24 @@ fn no_color_output_has_no_ansi_sequences() {
     assert!(output.status.success());
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(!stdout.contains("\u{1b}["));
+}
+
+fn strip_ansi(input: &str) -> String {
+    let mut stripped = String::new();
+    let mut chars = input.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        if ch == '\u{1b}' && chars.peek() == Some(&'[') {
+            chars.next();
+            for code_ch in chars.by_ref() {
+                if code_ch.is_ascii_alphabetic() {
+                    break;
+                }
+            }
+        } else {
+            stripped.push(ch);
+        }
+    }
+
+    stripped
 }

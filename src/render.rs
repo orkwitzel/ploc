@@ -22,9 +22,23 @@ pub fn render(summary: &Summary, color: bool) -> String {
     if !summary.languages.is_empty() {
         lines.push(format!("│ {}", language_bar(summary, color)));
         lines.push("│".to_string());
+        let name_width = summary
+            .languages
+            .iter()
+            .map(|language| language.name.chars().count())
+            .max()
+            .unwrap_or(0);
+        let code_width = summary
+            .languages
+            .iter()
+            .map(|language| language.code.to_string().len())
+            .max()
+            .unwrap_or(1);
+
         for (index, language) in summary.languages.iter().enumerate() {
-            let name = colorize(&language.name, index, color);
-            lines.push(format!("│ {:<12} {:>7}", name, language.code));
+            let name = format!("{:<name_width$}", language.name);
+            let name = colorize(&name, index, color);
+            lines.push(format!("│ {} {:>code_width$}", name, language.code));
         }
     }
 
