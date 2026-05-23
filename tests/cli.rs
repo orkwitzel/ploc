@@ -24,6 +24,42 @@ fn version_prints_package_version() {
 }
 
 #[test]
+fn completions_bash_include_supported_flags() {
+    let mut cmd = Command::cargo_bin("ploc").unwrap();
+
+    cmd.args(["completions", "bash"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--include-noise"))
+        .stdout(predicate::str::contains("--no-color"))
+        .stdout(predicate::str::contains("complete"));
+}
+
+#[test]
+fn completions_zsh_include_supported_flags() {
+    let mut cmd = Command::cargo_bin("ploc").unwrap();
+
+    cmd.args(["completions", "zsh"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--include-noise"))
+        .stdout(predicate::str::contains("--no-color"))
+        .stdout(predicate::str::contains("#compdef ploc"));
+}
+
+#[test]
+fn completions_fish_include_supported_flags() {
+    let mut cmd = Command::cargo_bin("ploc").unwrap();
+
+    cmd.args(["completions", "fish"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("-l include-noise"))
+        .stdout(predicate::str::contains("-l no-color"))
+        .stdout(predicate::str::contains("complete -c ploc"));
+}
+
+#[test]
 fn scans_only_current_directory() {
     let temp = assert_fs::TempDir::new().unwrap();
     temp.child("parent.rs")

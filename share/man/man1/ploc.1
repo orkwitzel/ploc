@@ -3,6 +3,10 @@
 ploc \- count lines of code and language usage in the current directory
 .SH SYNOPSIS
 .B ploc
+completions
+[\fBbash\fR|\fBzsh\fR|\fBfish\fR]
+.PP
+.B ploc
 [\fB\-\-include\-noise\fR]
 [\fB\-\-no\-color\fR]
 [\fB\-\-help\fR]
@@ -30,6 +34,16 @@ Print command help.
 .TP
 .B \-\-version
 Print the installed version.
+.SH COMMANDS
+.TP
+.B completions bash
+Print bash completions to stdout.
+.TP
+.B completions zsh
+Print zsh completions to stdout.
+.TP
+.B completions fish
+Print fish completions to stdout.
 .SH DEFAULT EXCLUSIONS
 By default,
 .B ploc
@@ -50,6 +64,9 @@ Scan the current directory without ANSI color:
 .TP
 Include build and dependency directories:
 .B ploc --include-noise
+.TP
+Generate zsh completions:
+.B ploc completions zsh > ~/.local/share/zsh/site-functions/_ploc
 .SH AUTHOR
 Or Kwitzel
 .SH LICENSE

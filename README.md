@@ -8,6 +8,7 @@
 ploc
 ploc --include-noise
 ploc --no-color
+ploc completions zsh
 ```
 
 `ploc` does not discover a git root or package root. It scans the current working directory as-is.
@@ -39,6 +40,32 @@ After installing, read the manual with:
 
 ```sh
 man ploc
+```
+
+## Shell Completions
+
+Generate completions with:
+
+```sh
+ploc completions bash
+ploc completions zsh
+ploc completions fish
+```
+
+Install examples:
+
+```sh
+# bash
+mkdir -p ~/.local/share/bash-completion/completions
+ploc completions bash > ~/.local/share/bash-completion/completions/ploc
+
+# zsh
+mkdir -p ~/.local/share/zsh/site-functions
+ploc completions zsh > ~/.local/share/zsh/site-functions/_ploc
+
+# fish
+mkdir -p ~/.config/fish/completions
+ploc completions fish > ~/.config/fish/completions/ploc.fish
 ```
 
 ## Build From Source
