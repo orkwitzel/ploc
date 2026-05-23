@@ -1,5 +1,5 @@
 use clap::Parser;
-use ploc::scan::scan_current_dir;
+use ploc::{render::render, scan::scan_current_dir};
 
 #[derive(Debug, Parser)]
 #[command(version, about = "Count LOC and languages in the current directory")]
@@ -17,11 +17,7 @@ fn main() {
     let cli = Cli::parse();
 
     match scan_current_dir(cli.include_noise) {
-        Ok(summary) => {
-            println!("Project   {}", summary.root_name);
-            println!("LOC       {}", summary.total_code);
-            println!("Files     {}", summary.total_files);
-        }
+        Ok(summary) => print!("{}", render(&summary, !cli.no_color)),
         Err(message) => {
             eprintln!("ploc: {message}");
             std::process::exit(1);

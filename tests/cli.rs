@@ -78,3 +78,38 @@ fn include_noise_counts_noise_directories() {
         .stdout(predicate::str::contains("LOC       2"))
         .stdout(predicate::str::contains("Files     2"));
 }
+
+#[test]
+fn renders_language_breakdown_sorted_by_loc() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.child("main.rs")
+        .write_str("fn main() {}\nfn helper() {}\n")
+        .unwrap();
+    temp.child("app.py").write_str("print('hi')\n").unwrap();
+
+    let mut cmd = Command::cargo_bin("ploc").unwrap();
+    cmd.current_dir(temp.path())
+        .arg("--no-color")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Languages 2"))
+        .stdout(predicate::str::contains("Rust"))
+        .stdout(predicate::str::contains("Python"));
+}
+
+#[test]
+fn no_color_output_has_no_ansi_sequences() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.child("main.rs").write_str("fn main() {}\n").unwrap();
+
+    let output = Command::cargo_bin("ploc")
+        .unwrap()
+        .current_dir(temp.path())
+        .arg("--no-color")
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(!stdout.contains("\u{1b}["));
+}
